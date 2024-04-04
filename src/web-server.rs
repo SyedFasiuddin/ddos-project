@@ -1,8 +1,10 @@
 use std::borrow::Cow;
+use std::ffi::OsStr;
+use std::path::PathBuf;
 
 use rocket::get;
 use rocket::http::ContentType;
-use rocket::http::Status;
+use rocket::response::content::RawHtml;
 use rocket::routes;
 
 use rust_embed::RustEmbed;
@@ -17,23 +19,28 @@ fn hello() -> &'static str {
 }
 
 #[get("/")]
-fn index() -> (Status, (ContentType, Cow<'static, [u8]>)) {
-    match Assets::get("index.html") {
-        Some(embedded_file) => (Status::Ok, (ContentType::HTML, embedded_file.data)),
-        None => {
-            eprintln!("ERROR: unable to get `public/index.html`");
-            return (
-                Status::NotFound,
-                (ContentType::Plain, Cow::from("404".as_bytes())),
-            );
-        }
-    }
+fn index() -> Option<RawHtml<Cow<'static, [u8]>>> {
+    let assets = Assets::get("index.html")?;
+    Some(RawHtml(assets.data))
+}
+
+#[get("/<file..>")]
+fn dist(file: PathBuf) -> Option<(ContentType, Cow<'static, [u8]>)> {
+    let filename = file.display().to_string();
+    let asset = Assets::get(&filename)?;
+    let content_type = file
+        .extension()
+        .and_then(OsStr::to_str)
+        .and_then(ContentType::from_extension)
+        .unwrap_or(ContentType::Bytes);
+
+    Some((content_type, asset.data))
 }
 
 #[rocket::main]
 async fn main() {
     let _ = rocket::build()
-        .mount("/", routes![hello, index])
+        .mount("/", routes![hello, index, dist])
         .launch()
         .await;
 }
