@@ -8,3 +8,11 @@ edition = "2021"
 [dependencies]
 rocket = "0.5.*"
 reqwest = "0.12.*"
+
+[[bin]]
+name = "web-server"
+path = "src/web-server.rs"
+
+[[bin]]
+name = "ddos-protection"
+path = "src/ddos-protection.rs"
