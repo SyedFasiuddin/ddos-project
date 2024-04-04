@@ -1,9 +1,234 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Simple Web Server</title>
-    </head>
-    <body>
-        <h1>Hello World</h1>
-    </body>
+
+<head>
+    <title>Simple Web Server</title>
+    <link rel="stylesheet" type="text/css" href="dist/main.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div id="logo">
+                Jackie's <br> Pet Store
+            </div>
+            <ul class="navigation-menu">
+                <li><a href="#">Products</a>
+                    <ul class="subnav">
+                        <li class="card-med" id="sup-dog">
+                            <div class="card-image"><img src="images/dog1.png"></div>
+                            <a href="#">
+                                <span>Dogs</span>
+                                <span>Shop All <span class="material-symbols-outlined">
+                                            arrow_forward
+                                        </span></span>
+                            </a>
+                        </li>
+                        <li class="card-med" id="sup-cat">
+                            <div class="card-image"><img src="images/cat1.png"></div>
+                            <a href="#">
+                                <span>Cats</span>
+                                <span>Shop All <span class="material-symbols-outlined">
+                                            arrow_forward
+                                        </span></span>
+                            </a>
+                        </li>
+                        <li class="card-med" id="sup-bird">
+                            <div class="card-image"><img src="images/duck1.png"></div>
+                            <a href="#">
+                                <span>Birds</span>
+                                <span>Shop All <span class="material-symbols-outlined">
+                                            arrow_forward
+                                        </span></span>
+                            </a>
+                        </li>
+                        <li class="card-med" id="sup-fish">
+                            <div class="card-image"><img src="images/fish1.png"></div>
+                            <a href="#">
+                                <span>Fish</span>
+                                <span>Shop All <span class="material-symbols-outlined">
+                                            arrow_forward
+                                        </span></span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <li><a href="#">Services</a>
+                        <ul class="subnav">
+                            <li class="card-med" id="serv-groom">
+                                <div class="card-image"><img src="images/bucket1.png"></div>
+                                <a href="#">
+                                    <span>Grooming</span>
+                                    <span>More Info <span class="material-symbols-outlined">
+                                                arrow_forward
+                                            </span></span>
+                                </a>
+                            </li>
+                            <li class="card-med" id="serv-board">
+                                <div class="card-image"><img src="images/cloud1.png"></div>
+                                <a href="#">
+                                    <span>Boarding</span>
+                                    <span>More Info<span class="material-symbols-outlined">
+                                                arrow_forward
+                                            </span></span>
+                                </a>
+                        </ul>
+                        </li>
+                        <li><a href="#locate">Locations &amp; Hours</a>
+                        </li>
+                        <li>
+                            <a href="#">About Us</a>
+                        </li>
+            </ul>
+            <div id="utility">
+                <span class="material-symbols-outlined">search</span>
+                <span class="material-symbols-outlined">shopping_cart</span>
+            </div>
+        </nav>
+    </header>
+    <section class="hero">
+        <h1>Your One-Stop Shop for Every Pet's Needs!</h1>
+        <div class="btn-group">
+            <button class="btn-filled-dark">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    Shop All Products
+                </button>
+            <button class="btn-outline-dark btn-hover-color">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Book a Service
+                </button>
+        </div>
+    </section>
+    <section>
+        <h2>Shop by Pet</h2>
+        <ul class="shop-pets">
+            <li class="card-large card-light" id="sup-dog">
+                <div class="card-image"><img src="images/dog2.png"></div>
+                <ul>
+                    Dogs
+                    <li><a href="#">Food &amp; Treats</a></li>
+                    <li><a href="#">Toys</a></li>
+                    <li><a href="#">Beds &amp; Furniture</a></li>
+                    <li><a href="#">Outdoor Supplies</a></li>
+                    <li><a href="#">Clothing</a></li>
+
+                    <button class="btn-outline-light">Shop All<span class="material-symbols-outlined">
+                                arrow_forward
+                            </span></button>
+
+                </ul>
+
+            </li>
+
+            <li class="card-large card-dark" id="sup-cat">
+                <div class="card-image"><img src="images/cat2.png"></div>
+                <ul>Cats
+                    <li><a href="#">Food &amp; Treats</a></li>
+                    <li><a href="#">Toys</a></li>
+                    <li><a href="#">Beds &amp; Furniture</a></li>
+                    <button class="btn-outline-dark">Shop All<span class="material-symbols-outlined">
+                                arrow_forward
+                            </span></button>
+                </ul>
+
+            </li>
+
+            <li class="card-large card-dark" id="sup-bird">
+                <div class="card-image"><img src="images/duck1.png"> </div>
+                <ul>Birds
+                    <li><a href="#">Food &amp; Treats</a></li>
+                    <li><a href="#">Toys</a></li>
+                    <li><a href="#">Furniture</a></li>
+                    <button class="btn-outline-dark">Shop All<span class="material-symbols-outlined">
+                                arrow_forward
+                            </span></button>
+                </ul>
+
+            </li>
+            <li class="card-large card-light" id="sup-fish">
+                <div class="card-image"><img src="images/fish1.png"></div>
+                <ul>
+                    Fish
+                    <li><a href="#">Food</a></li>
+                    <li><a href="#">Aquariums</a></li>
+                    <li><a href="#">Rocks &amp; Decorations</a></li>
+                    <button class="btn-outline-light">Shop All<span class="material-symbols-outlined">
+                                arrow_forward
+                            </span></button>
+                </ul>
+
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Our Services</h2>
+        <ul class="services">
+            <li class="card-large card-dark card-wide" id="serv-groom">
+                <div class="card-image"><img src="images/bucket1.png"></div>
+                <ul>
+                    Dog Grooming<span class="subtitle">Tail-wagging transformations are our specialty.</span>
+                    <li><a href="#">Coat Care</a><span>$80</span></li>
+                    <li><a href="#">Nail Care</a><span>$16</span></li>
+                    <li><a href="#">Doggie Deluxe Spa Day</a><span>$160</span></li>
+                    <button class="btn-filled-dark"><span class="material-symbols-outlined">calendar_month</span>Book Now</button>
+                </ul>
+            </li>
+            <li class="card-large card-dark card-wide" id="serv-board">
+                <div class="card-image"><img src="images/cloud1.png"></div>
+                <ul>
+                    Dog Boarding<span class="subtitle">Where fun and care never take a day off.</span>
+                    <li><a href="#">Doggie Daycare</a><span>$80</span></li>
+                    <li><a href="#">Short Term Boarding</a><span>$80</span></li>
+                    <button class="btn-filled-dark"><span class="material-symbols-outlined">
+                                calendar_month
+                            </span>Book Now</button>
+                </ul>
+            </li>
+        </ul>
+    </section>
+
+    <section id="locate">
+        <div>
+            <h2>Location &amp; Hours</h2>
+            <p>Our knowledgeable and friendly staff is always ready to assist you in making the best choices for your furry, feathered, or finned friends.</p>
+            <div class="btn-group">
+                <button class="btn-filled-dark"><span class="material-symbols-outlined">pin_drop</span>Find a Store</button>
+                <button class="btn-outline-dark btn-hover-color"><span class="material-symbols-outlined">contact_support</span>Contact Us</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <ul>
+            Products
+            <li><a href="#">Food &amp; Treats</a></li>
+            <li><a href="#">Toys</a></li>
+            <li><a href="#">Beds &amp; Furniture</a></li>
+            <li><a href="#">Outdoor Supplies</a></li>
+            <li><a href="#">Clothing</a></li>
+            <li><a href="#">Aquariums</a></li>
+            <li><a href="#">Rocks &amp; Decorations</a></li>
+        </ul>
+        <ul>
+            Shop by Pet
+            <li><a href="#">Dogs</a></li>
+            <li><a href="#">Cats</a></li>
+            <li><a href="#">Birds</a></li>
+            <li><a href="#">Fish</a></li>
+        </ul>
+        <ul>
+            Our Services
+            <li><a href="#">Grooming</a></li>
+            <li><a href="#">Boarding</a></li>
+        </ul>
+        <ul>
+            Our Company
+            <li><a href="#">Locations &amp; Hours</a></li>
+            <li><a href="#">About Us</a></li>
+        </ul>
+    </footer>
+</body>
+
 </html>
