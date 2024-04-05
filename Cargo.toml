@@ -10,8 +10,12 @@ rust-embed = "8.3.*"
 openssl = { version = "0.10.*", features = ["vendored"] }
 
 [[bin]]
-name = "web-server"
-path = "src/web-server.rs"
+name = "rocket-web-server"
+path = "src/rocket-web-server.rs"
+
+[[bin]]
+name = "simple-web-server"
+path = "src/simple-web-server.rs"
 
 [[bin]]
 name = "ddos-protection"
