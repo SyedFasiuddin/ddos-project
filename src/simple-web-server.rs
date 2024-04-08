@@ -35,7 +35,7 @@ fn handle_connection(mut stream: TcpStream) {
                 eprintln!("INFO: {peer_addr} has closed the connection");
                 return;
             }
-            Ok(n) => buffer[0..n].iter().cloned().collect(),
+            Ok(n) => buffer[0..n].to_vec(),
             Err(e) => {
                 eprintln!("ERROR: cannot read from {peer_addr} due to: {e}");
                 return;
@@ -47,14 +47,14 @@ fn handle_connection(mut stream: TcpStream) {
         let http_request: Vec<_> = str_buf.lines().collect();
 
         for line in http_request {
-            if line == "" {
+            if line.is_empty() {
                 // Got a complete HTTP request
                 break 'outer;
             }
         }
     }
 
-    let response: Vec<u8> = match &str_buf.lines().nth(0).unwrap().split(' ').collect::<Vec<_>>()[..] {
+    let response: Vec<u8> = match &str_buf.lines().next().unwrap().split(' ').collect::<Vec<_>>()[..] {
         ["GET", "/test", "HTTP/1.1"] => {
             eprintln!("INFO: GET request for route /test from {peer_addr}");
             "HTTP/1.1 200 OK\r\n\r\nHello World\n".into()
