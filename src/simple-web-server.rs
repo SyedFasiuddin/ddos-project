@@ -59,14 +59,30 @@ fn handle_connection(mut stream: TcpStream) {
             eprintln!("INFO: GET request for route /test from {peer_addr}");
             "HTTP/1.1 200 OK\r\n\r\nHello World\n".into()
         },
-        ["GET", "/" | "/index.html", "HTTP/1.1"] => {
-            eprintln!("INFO: GET request for route / from {peer_addr}");
-            match Assets::get("index.html") {
+        ["GET", filename, "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route {filename} from {peer_addr}");
+            let filename = if filename == &"/" {
+                "/index.html"
+            } else {
+                filename
+            };
+
+            // [1..] to remove the `/` in front
+            match Assets::get(&filename[1..]) {
                 Some(asset) => {
                     let data = asset.data.to_vec();
+                    let content_type = if filename.ends_with(".css") {
+                        "text/css"
+                    } else if filename.ends_with(".png") {
+                        "image/png"
+                    } else if filename.ends_with(".html") {
+                        "text/html"
+                    } else {
+                        ""
+                    };
                     let mut response: Vec<u8> =
                         ("HTTP/1.1 200 Ok\r\n".to_owned() +
-                        "Content-Type: text/html\r\n" +
+                        "Content-Type: " + content_type + "\r\n" +
                         "Content-Length: " + data.len().to_string().as_str() + "\r\n" +
                         "\r\n").into();
                     response.extend_from_slice(&data);
@@ -80,7 +96,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     match stream.write_all(&response) {
         Ok(()) => eprintln!("INFO: sent response to {peer_addr} successfully, closing connection"),
-        Err(e) => eprintln!("ERROR: sending response to {peer_addr} due to: {e}"),
+        Err(e) => eprintln!("ERROR: sending response to {peer_addr} failed due to: {e}"),
     }
 }
 
