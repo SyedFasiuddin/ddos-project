@@ -54,14 +54,22 @@ fn handle_connection(mut stream: TcpStream) {
         }
     }
 
-    let response: Vec<u8> = match &str_buf.lines().next().unwrap().split(' ').collect::<Vec<_>>()[..] {
+    let request_line = match str_buf.lines().next() {
+        Some(line) => line,
+        None => {
+            eprintln!("ERROR: {peer_addr} violates HTTP spec");
+            return;
+        }
+    };
+
+    let response: Vec<u8> = match request_line.split(' ').collect::<Vec<_>>()[..] {
         ["GET", "/test", "HTTP/1.1"] => {
             eprintln!("INFO: GET request for route /test from {peer_addr}");
             "HTTP/1.1 200 OK\r\n\r\nHello World\n".into()
-        },
+        }
         ["GET", filename, "HTTP/1.1"] => {
             eprintln!("INFO: GET request for route {filename} from {peer_addr}");
-            let filename = if filename == &"/" {
+            let filename = if filename == "/" {
                 "/index.html"
             } else {
                 filename
@@ -80,17 +88,24 @@ fn handle_connection(mut stream: TcpStream) {
                     } else {
                         ""
                     };
-                    let mut response: Vec<u8> =
-                        ("HTTP/1.1 200 Ok\r\n".to_owned() +
-                        "Content-Type: " + content_type + "\r\n" +
-                        "Content-Length: " + data.len().to_string().as_str() + "\r\n" +
-                        "\r\n").into();
+                    let mut response: Vec<u8> = format!(
+                        "\
+                        HTTP/1.1 200 OK\r\n\
+                        Content-Type: {}\r\n\
+                        Content-Length: {}\r\n\
+                        \r\n\
+                        ",
+                        content_type,
+                        data.len().to_string().as_str()
+                    )
+                    .into();
+
                     response.extend_from_slice(&data);
                     response
-                },
+                }
                 None => "HTTP/1.1 404 Not Found".into(),
             }
-        },
+        }
         _ => unimplemented!(),
     };
 
