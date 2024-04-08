@@ -5,6 +5,12 @@ use std::net::TcpListener;
 use std::net::TcpStream;
 use std::process::exit;
 
+use rust_embed::RustEmbed;
+
+#[derive(RustEmbed)]
+#[folder = "public/"]
+struct Assets;
+
 fn handle_connection(mut stream: TcpStream) {
     let peer_addr = match stream.peer_addr() {
         Ok(addr) => {
@@ -48,16 +54,31 @@ fn handle_connection(mut stream: TcpStream) {
         }
     }
 
-    let response: String;
-    match &str_buf.lines().nth(0).unwrap().split(' ').collect::<Vec<_>>()[..] {
+    let response: Vec<u8> = match &str_buf.lines().nth(0).unwrap().split(' ').collect::<Vec<_>>()[..] {
         ["GET", "/test", "HTTP/1.1"] => {
             eprintln!("INFO: GET request for route /test from {peer_addr}");
-            response = "HTTP/1.1 200 OK\r\n\r\nHello World\n".to_string();
+            "HTTP/1.1 200 OK\r\n\r\nHello World\n".into()
+        },
+        ["GET", "/" | "/index.html", "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route / from {peer_addr}");
+            match Assets::get("index.html") {
+                Some(asset) => {
+                    let data = asset.data.to_vec();
+                    let mut response: Vec<u8> =
+                        ("HTTP/1.1 200 Ok\r\n".to_owned() +
+                        "Content-Type: text/html\r\n" +
+                        "Content-Length: " + data.len().to_string().as_str() + "\r\n" +
+                        "\r\n").into();
+                    response.extend_from_slice(&data);
+                    response
+                },
+                None => "HTTP/1.1 404 Not Found".into(),
+            }
         },
         _ => unimplemented!(),
-    }
+    };
 
-    match stream.write_all(response.as_bytes()) {
+    match stream.write_all(&response) {
         Ok(()) => eprintln!("INFO: sent response to {peer_addr} successfully, closing connection"),
         Err(e) => eprintln!("ERROR: sending response to {peer_addr} due to: {e}"),
     }
