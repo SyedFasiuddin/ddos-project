@@ -20,10 +20,10 @@ fn handle_connection(mut stream: TcpStream) {
     };
 
     let mut buf_reader = BufReader::new(&mut stream);
-    let mut buffer = [0; 1024];
+    let mut str_buf = String::new();
 
-    let mut response = String::new();
     'outer: loop {
+        let mut buffer = [0; 1024];
         let bytes: Vec<_> = match buf_reader.read(&mut buffer) {
             Ok(0) => {
                 eprintln!("INFO: {peer_addr} has closed the connection");
@@ -37,19 +37,24 @@ fn handle_connection(mut stream: TcpStream) {
         };
 
         let http_request = String::from_utf8(bytes).expect("ERROR: {peer_addr} violates HTTP spec");
-        let http_request: Vec<_> = http_request.lines().collect();
+        str_buf.push_str(&http_request);
+        let http_request: Vec<_> = str_buf.lines().collect();
 
         for line in http_request {
-            if line == "GET /test HTTP/1.1" {
-                eprintln!("INFO: GET request for route /test from {peer_addr}");
-                response = "HTTP/1.1 200 OK\r\n\r\nHello World\n".to_string();
-            }
-
             if line == "" {
                 // Got a complete HTTP request
                 break 'outer;
             }
         }
+    }
+
+    let response: String;
+    match &str_buf.lines().nth(0).unwrap().split(' ').collect::<Vec<_>>()[..] {
+        ["GET", "/test", "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route /test from {peer_addr}");
+            response = "HTTP/1.1 200 OK\r\n\r\nHello World\n".to_string();
+        },
+        _ => unimplemented!(),
     }
 
     match stream.write_all(response.as_bytes()) {
