@@ -92,7 +92,7 @@ fn handle_connection(mut stream: TcpStream) {
     };
 
     let mut buf_reader = BufReader::new(&mut stream);
-    let mut str_buf = String::new();
+    let mut http_request_buffer = String::new();
 
     'outer: loop {
         let mut buffer = [0; 1024];
@@ -109,8 +109,8 @@ fn handle_connection(mut stream: TcpStream) {
         };
 
         let http_request = String::from_utf8(bytes).expect("ERROR: {peer_addr} violates HTTP spec");
-        str_buf.push_str(&http_request);
-        let http_request: Vec<_> = str_buf.lines().collect();
+        http_request_buffer.push_str(&http_request);
+        let http_request: Vec<_> = http_request_buffer.lines().collect();
 
         for line in http_request {
             if line.is_empty() {
@@ -120,7 +120,7 @@ fn handle_connection(mut stream: TcpStream) {
         }
     }
 
-    let request_line = match str_buf.lines().next() {
+    let request_line = match http_request_buffer.lines().next() {
         Some(line) => line,
         None => {
             eprintln!("ERROR: {peer_addr} violates HTTP spec");
