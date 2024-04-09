@@ -108,7 +108,13 @@ fn handle_connection(mut stream: TcpStream) {
             }
         };
 
-        let http_request = String::from_utf8(bytes).expect("ERROR: {peer_addr} violates HTTP spec");
+        let http_request = match String::from_utf8(bytes) {
+            Ok(str) => str,
+            Err(_) => {
+                eprintln!("ERROR: {peer_addr} violates HTTP spec, closing connection");
+                return;
+            }
+        };
         http_request_buffer.push_str(&http_request);
 
         for line in http_request_buffer.lines() {
@@ -122,7 +128,7 @@ fn handle_connection(mut stream: TcpStream) {
     let request_line = match http_request_buffer.lines().next() {
         Some(line) => line,
         None => {
-            eprintln!("ERROR: {peer_addr} violates HTTP spec");
+            eprintln!("ERROR: {peer_addr} violates HTTP spec, closing connection");
             return;
         }
     };
