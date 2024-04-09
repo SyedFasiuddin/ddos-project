@@ -34,7 +34,16 @@ impl Server {
     }
 
     fn route_test() -> Vec<u8> {
-        "HTTP/1.1 200 OK\r\n\r\nHello World\n".into()
+        format!(
+            "\
+            HTTP/1.1 200 OK\r\n\
+            Content-Type: text/plain\r\n\
+            Content-Length: 12\r\n\
+            \r\n\
+            Hello World\n\
+            "
+        )
+        .into()
     }
 
     fn route_dist(filename: &str) -> Vec<u8> {

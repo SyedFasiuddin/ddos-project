@@ -14,7 +14,7 @@ use rust_embed::RustEmbed;
 struct Assets;
 
 #[get("/test")]
-fn hello() -> &'static str {
+fn test() -> &'static str {
     "Hello World\n"
 }
 
@@ -40,7 +40,7 @@ fn dist(file: PathBuf) -> Option<(ContentType, Cow<'static, [u8]>)> {
 #[rocket::main]
 async fn main() {
     let _ = rocket::build()
-        .mount("/", routes![hello, index, dist])
+        .mount("/", routes![test, index, dist])
         .launch()
         .await;
 }
