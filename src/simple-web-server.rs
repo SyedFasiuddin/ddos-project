@@ -110,9 +110,8 @@ fn handle_connection(mut stream: TcpStream) {
 
         let http_request = String::from_utf8(bytes).expect("ERROR: {peer_addr} violates HTTP spec");
         http_request_buffer.push_str(&http_request);
-        let http_request: Vec<_> = http_request_buffer.lines().collect();
 
-        for line in http_request {
+        for line in http_request_buffer.lines() {
             if line.is_empty() {
                 // Got a complete HTTP request
                 break 'outer;
