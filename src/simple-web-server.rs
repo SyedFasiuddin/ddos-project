@@ -114,7 +114,10 @@ impl Server {
                     eprintln!("INFO: {peer_addr} has closed the connection");
                     return;
                 }
-                Ok(n) => buffer[0..n].to_vec(),
+                Ok(n) => {
+                    eprintln!("INFO: recieved {n} bytes from {peer_addr}");
+                    buffer[0..n].to_vec()
+                }
                 Err(e) => {
                     eprintln!("ERROR: cannot read from {peer_addr} due to: {e}");
                     return;
