@@ -1,6 +1,8 @@
 use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
+use std::net::Ipv4Addr;
+use std::net::SocketAddrV4;
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::process::exit;
@@ -10,6 +12,27 @@ use rust_embed::RustEmbed;
 #[derive(RustEmbed)]
 #[folder = "public/"]
 struct Assets;
+
+struct Server {
+    listener: TcpListener,
+}
+
+impl Server {
+    fn new(ip: Ipv4Addr, port: u16) -> Self {
+        Self {
+            listener: match TcpListener::bind(SocketAddrV4::new(ip, port)) {
+                Ok(listener) => {
+                    eprintln!("INFO: started listening on {ip}:{port}");
+                    listener
+                }
+                Err(e) => {
+                    eprintln!("ERROR: cannot create `TcpListener` due to: {e}");
+                    exit(1);
+                }
+            },
+        }
+    }
+}
 
 fn handle_connection(mut stream: TcpStream) {
     let peer_addr = match stream.peer_addr() {
@@ -116,22 +139,9 @@ fn handle_connection(mut stream: TcpStream) {
 }
 
 fn main() {
-    let ip = "127.0.0.1";
-    let port = "8000";
-    let address = format!("{ip}:{port}");
+    let server = Server::new(Ipv4Addr::new(127, 0, 0, 1), 8000);
 
-    let listener = match TcpListener::bind(address) {
-        Ok(listener) => {
-            eprintln!("INFO: started listening on {ip}:{port}");
-            listener
-        }
-        Err(e) => {
-            eprintln!("ERROR: cannot create `TcpListener` due to: {e}");
-            exit(1);
-        }
-    };
-
-    for stream in listener.incoming() {
+    for stream in server.listener.incoming() {
         match stream {
             Ok(stream) => handle_connection(stream),
             Err(e) => {
