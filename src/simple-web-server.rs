@@ -80,11 +80,11 @@ impl Server {
         match request_line.split(' ').collect::<Vec<_>>()[..] {
             ["GET", "/test", "HTTP/1.1"] => {
                 eprintln!("INFO: GET request for route /test from {peer_addr}");
-                route_test()
+                Server::route_test()
             }
             ["GET", filename, "HTTP/1.1"] => {
                 eprintln!("INFO: GET request for route {filename} from {peer_addr}");
-                route_dist(filename)
+                Server::route_dist(filename)
             }
             _ => unimplemented!(),
         }
@@ -146,7 +146,7 @@ impl Server {
             }
         };
 
-        let response = generate_response(request_line, peer_addr);
+        let response = Server::generate_response(request_line, peer_addr);
         match stream.write_all(&response) {
             Ok(()) => {
                 eprintln!("INFO: sent response to {peer_addr} successfully, closing connection")
