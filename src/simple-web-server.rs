@@ -2,7 +2,7 @@ use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
 use std::net::Ipv4Addr;
-use std::net::SocketAddrV4;
+use std::net::{SocketAddr, SocketAddrV4};
 use std::net::TcpListener;
 use std::net::TcpStream;
 use std::process::exit;
@@ -77,6 +77,20 @@ fn route_dist(filename: &str) -> Vec<u8> {
     }
 }
 
+fn generate_response(request_line: &str, peer_addr: SocketAddr) -> Vec<u8> {
+    match request_line.split(' ').collect::<Vec<_>>()[..] {
+        ["GET", "/test", "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route /test from {peer_addr}");
+            route_test()
+        }
+        ["GET", filename, "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route {filename} from {peer_addr}");
+            route_dist(filename)
+        }
+        _ => unimplemented!(),
+    }
+}
+
 fn handle_connection(mut stream: TcpStream) {
     let peer_addr = match stream.peer_addr() {
         Ok(addr) => {
@@ -133,18 +147,7 @@ fn handle_connection(mut stream: TcpStream) {
         }
     };
 
-    let response: Vec<u8> = match request_line.split(' ').collect::<Vec<_>>()[..] {
-        ["GET", "/test", "HTTP/1.1"] => {
-            eprintln!("INFO: GET request for route /test from {peer_addr}");
-            route_test()
-        }
-        ["GET", filename, "HTTP/1.1"] => {
-            eprintln!("INFO: GET request for route {filename} from {peer_addr}");
-            route_dist(filename)
-        }
-        _ => unimplemented!(),
-    };
-
+    let response = generate_response(request_line, peer_addr);
     match stream.write_all(&response) {
         Ok(()) => eprintln!("INFO: sent response to {peer_addr} successfully, closing connection"),
         Err(e) => eprintln!("ERROR: sending response to {peer_addr} failed due to: {e}"),
