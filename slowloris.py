@@ -39,7 +39,7 @@ request = "\r\n".join(request)
 
 
 def ctrlc_handler(signal, frame):
-    print("INFO: Ctrl-C revieved, stopping attack")
+    print("INFO: Ctrl-C recieved, stopping attack")
     exit(0)
 
 
@@ -72,7 +72,7 @@ def main():
         try:
             s.sendall(b"X-a: 10000\r\n")
         except socket.error:
-            print("ERROR: something went wrong with sending request, exiting")
+            print("SocketError: The other party closed the connection")
             break
         print(f"\033[2KINFO: sending data{'.' * count}\r", end="")
         count += 1

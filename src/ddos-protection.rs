@@ -20,7 +20,6 @@ struct ServerState {
 #[get("/test")]
 async fn test(ip: IpAddr, state: &State<ServerState>) -> Option<(ContentType, Vec<u8>)> {
     if should_block(ip, state) {
-        println!("ERROR: blocking ip: {ip}");
         return None;
     }
 
@@ -44,7 +43,6 @@ async fn dist(
     state: &State<ServerState>,
 ) -> Option<(ContentType, Vec<u8>)> {
     if should_block(ip, state) {
-        println!("ERROR: blocking ip: {ip}");
         return None;
     }
 
@@ -80,6 +78,7 @@ fn should_block(ip: IpAddr, state: &State<ServerState>) -> bool {
         count.parse::<usize>().unwrap()
     };
     if count >= count_limit {
+        println!("INFO: blocking ip: {ip}");
         return true;
     }
     connections.push((ip, now));
