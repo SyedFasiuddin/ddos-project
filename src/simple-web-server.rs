@@ -181,6 +181,11 @@ impl Server {
 }
 
 fn main() {
-    let server = Server::new(Ipv4Addr::new(127, 0, 0, 1), 8000);
+    let server = if cfg!(target_os = "linux") {
+        Server::new(Ipv4Addr::new(0, 0, 0, 0), 8000)
+    } else {
+        Server::new(Ipv4Addr::new(127, 0, 0, 1), 8000)
+    };
+
     server.handle_connections();
 }
