@@ -73,13 +73,13 @@ fn should_block(ip: IpAddr, state: &State<ServerState>) -> bool {
         time.parse::<u64>().unwrap()
     };
     connections.retain(|c| now.duration_since(c.1).unwrap() < Duration::new(time, 0));
-    let c = connections.iter().filter(|&c| c.0 == ip).count();
+    let count = connections.iter().filter(|&c| c.0 == ip).count();
 
-    let count = {
+    let count_limit = {
         let count = env::var("DDOS_LIMIT_WITHIN_DURATION").unwrap_or("100".to_string());
         count.parse::<usize>().unwrap()
     };
-    if c >= count {
+    if count >= count_limit {
         return true;
     }
     connections.push((ip, now));
