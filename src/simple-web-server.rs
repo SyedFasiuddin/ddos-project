@@ -16,6 +16,73 @@ use rust_embed::RustEmbed;
 #[folder = "public/"]
 struct Assets;
 
+fn generate_response(request_line: &str, peer_addr: SocketAddr) -> Vec<u8> {
+    match request_line.split(' ').collect::<Vec<_>>()[..] {
+        ["GET", "/test", "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route /test from {peer_addr}");
+            route_test()
+        }
+        ["GET", filename, "HTTP/1.1"] => {
+            eprintln!("INFO: GET request for route {filename} from {peer_addr}");
+            route_dist(filename)
+        }
+        _ => unimplemented!(),
+    }
+}
+
+
+fn route_test() -> Vec<u8> {
+    format!(
+        "\
+        HTTP/1.1 200 OK\r\n\
+        Content-Type: text/plain\r\n\
+        Content-Length: 12\r\n\
+        \r\n\
+        Hello World\n\
+        "
+    )
+    .into()
+}
+
+fn route_dist(filename: &str) -> Vec<u8> {
+    let filename = if filename == "/" {
+        "/index.html"
+    } else {
+        filename
+    };
+
+    // [1..] to remove the `/` in front
+    match Assets::get(&filename[1..]) {
+        Some(asset) => {
+            let data = asset.data.to_vec();
+            let content_type = if filename.ends_with(".css") {
+                "text/css"
+            } else if filename.ends_with(".png") {
+                "image/png"
+            } else if filename.ends_with(".html") {
+                "text/html"
+            } else {
+                ""
+            };
+            let mut response: Vec<u8> = format!(
+                "\
+                HTTP/1.1 200 OK\r\n\
+                Content-Type: {}\r\n\
+                Content-Length: {}\r\n\
+                \r\n\
+                ",
+                content_type,
+                data.len().to_string().as_str()
+            )
+            .into();
+
+            response.extend_from_slice(&data);
+            response
+        }
+        None => "HTTP/1.1 404 Not Found".into(),
+    }
+}
+
 impl Server {
     fn new(ip: Ipv4Addr, port: u16) -> Self {
         Self {
@@ -29,72 +96,6 @@ impl Server {
                     exit(1);
                 }
             },
-        }
-    }
-
-    fn route_test() -> Vec<u8> {
-        format!(
-            "\
-            HTTP/1.1 200 OK\r\n\
-            Content-Type: text/plain\r\n\
-            Content-Length: 12\r\n\
-            \r\n\
-            Hello World\n\
-            "
-        )
-        .into()
-    }
-
-    fn route_dist(filename: &str) -> Vec<u8> {
-        let filename = if filename == "/" {
-            "/index.html"
-        } else {
-            filename
-        };
-
-        // [1..] to remove the `/` in front
-        match Assets::get(&filename[1..]) {
-            Some(asset) => {
-                let data = asset.data.to_vec();
-                let content_type = if filename.ends_with(".css") {
-                    "text/css"
-                } else if filename.ends_with(".png") {
-                    "image/png"
-                } else if filename.ends_with(".html") {
-                    "text/html"
-                } else {
-                    ""
-                };
-                let mut response: Vec<u8> = format!(
-                    "\
-                    HTTP/1.1 200 OK\r\n\
-                    Content-Type: {}\r\n\
-                    Content-Length: {}\r\n\
-                    \r\n\
-                    ",
-                    content_type,
-                    data.len().to_string().as_str()
-                )
-                .into();
-
-                response.extend_from_slice(&data);
-                response
-            }
-            None => "HTTP/1.1 404 Not Found".into(),
-        }
-    }
-
-    fn generate_response(request_line: &str, peer_addr: SocketAddr) -> Vec<u8> {
-        match request_line.split(' ').collect::<Vec<_>>()[..] {
-            ["GET", "/test", "HTTP/1.1"] => {
-                eprintln!("INFO: GET request for route /test from {peer_addr}");
-                Server::route_test()
-            }
-            ["GET", filename, "HTTP/1.1"] => {
-                eprintln!("INFO: GET request for route {filename} from {peer_addr}");
-                Server::route_dist(filename)
-            }
-            _ => unimplemented!(),
         }
     }
 
@@ -157,7 +158,7 @@ impl Server {
             }
         };
 
-        let response = Server::generate_response(request_line, peer_addr);
+        let response = generate_response(request_line, peer_addr);
         match stream.write_all(&response) {
             Ok(()) => {
                 eprintln!("INFO: sent response to {peer_addr} successfully, closing connection")
