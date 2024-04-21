@@ -1,3 +1,6 @@
+mod server;
+use crate::server::Server;
+
 use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
@@ -12,10 +15,6 @@ use rust_embed::RustEmbed;
 #[derive(RustEmbed)]
 #[folder = "public/"]
 struct Assets;
-
-struct Server {
-    listener: TcpListener,
-}
 
 impl Server {
     fn new(ip: Ipv4Addr, port: u16) -> Self {
