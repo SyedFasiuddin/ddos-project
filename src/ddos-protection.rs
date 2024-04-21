@@ -69,14 +69,14 @@ fn should_block(ip: IpAddr, state: &State<ServerState>) -> bool {
     let now = SystemTime::now();
     let connections = &mut *state.req.lock().unwrap();
     let time = {
-        let time = env::var("DDOS_TIMEOUT_DURATION").unwrap_or("60".to_string());
+        let time = env::var("DDOS_TIMEOUT_DURATION").unwrap_or("5".to_string());
         time.parse::<u64>().unwrap()
     };
     connections.retain(|c| now.duration_since(c.1).unwrap() < Duration::new(time, 0));
     let count = connections.iter().filter(|&c| c.0 == ip).count();
 
     let count_limit = {
-        let count = env::var("DDOS_LIMIT_WITHIN_DURATION").unwrap_or("100".to_string());
+        let count = env::var("DDOS_LIMIT_WITHIN_DURATION").unwrap_or("50".to_string());
         count.parse::<usize>().unwrap()
     };
     if count >= count_limit {
