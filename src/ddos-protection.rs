@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::net::IpAddr;
 use std::path::PathBuf;
@@ -12,9 +13,12 @@ use rocket::State;
 const SERVER_IP: &str = "127.0.0.1";
 const SERVER_PORT: &str = "8000";
 
+type Count = u64;
+
 #[derive(Debug, Default)]
 struct ServerState {
     req: Mutex<Vec<(IpAddr, SystemTime)>>,
+    count: Mutex<HashMap<IpAddr, Count>>,
 }
 
 #[get("/test")]
@@ -64,24 +68,34 @@ async fn dist(
 }
 
 fn should_block(ip: IpAddr, state: &State<ServerState>) -> bool {
-    let now = SystemTime::now();
-    let connections = &mut *state.req.lock().unwrap();
     let time = {
         let time = env::var("DDOS_TIMEOUT_DURATION").unwrap_or("5".to_string());
         time.parse::<u64>().unwrap()
     };
-    connections.retain(|c| now.duration_since(c.1).unwrap() < Duration::new(time, 0));
-    let count = connections.iter().filter(|&c| c.0 == ip).count();
-
     let count_limit = {
         let count = env::var("DDOS_LIMIT_WITHIN_DURATION").unwrap_or("50".to_string());
-        count.parse::<usize>().unwrap()
+        count.parse::<u64>().unwrap()
     };
+
+    let mut counts = state.count.lock().unwrap();
+    if let Some(val) = counts.get(&ip) {
+        if *val >= count_limit {
+            println!("INFO: blocking ip: {ip}");
+            return true;
+        }
+    }
+
+    let now = SystemTime::now();
+    let mut connections = state.req.lock().unwrap();
+    connections.retain(|c| now.duration_since(c.1).unwrap() < Duration::new(time, 0));
+    let count = connections.iter().filter(|&c| c.0 == ip).count() as u64;
+
     if count >= count_limit {
         println!("INFO: blocking ip: {ip}");
         return true;
     }
     connections.push((ip, now));
+    counts.insert(ip, count);
 
     false
 }
