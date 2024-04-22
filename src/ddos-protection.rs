@@ -9,6 +9,9 @@ use rocket::get;
 use rocket::http::ContentType;
 use rocket::routes;
 use rocket::State;
+use rocket::catch;
+use rocket::Request;
+use rocket::catchers;
 
 const SERVER_IP: &str = "127.0.0.1";
 const SERVER_PORT: &str = "8000";
@@ -67,6 +70,11 @@ async fn dist(
     }
 }
 
+#[catch(404)]
+fn not_found_handler(req: &Request) -> String {
+    format!("Couldn't find {}", req.uri())
+}
+
 fn should_block(ip: IpAddr, state: &State<ServerState>) -> bool {
     let time = {
         let time = env::var("DDOS_TIMEOUT_DURATION").unwrap_or("5".to_string());
@@ -105,6 +113,7 @@ async fn main() {
     let _ = rocket::build()
         .mount("/", routes![test, dist])
         .manage(ServerState::default())
+        .register("/", catchers![not_found_handler])
         .launch()
         .await;
 }
