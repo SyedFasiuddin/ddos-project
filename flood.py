@@ -5,7 +5,7 @@ import socket
 import signal
 
 parser = argparse.ArgumentParser(
-    prog="slowloris", description="Perform slowloris attack on given target server"
+    prog="flood", description="Performs a flood attack on the target server"
 )
 parser.add_argument("ip", default="127.0.0.1", help="IP address of the target server")
 parser.add_argument(
