@@ -19,9 +19,9 @@
       with pkgs;
       {
         devShells.default = mkShell {
-          buildInputs = [
-            rust-bin.stable."1.77.0".default
-          ];
+          buildInputs =
+            [rust-bin.stable."1.77.0".default python310]
+            ++ (lib.optional stdenv.isDarwin darwin.apple_sdk.frameworks.SystemConfiguration);
         };
       }
     );
